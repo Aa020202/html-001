@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>精益工具卡 | Poka-yoke 防错法</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: #F8FAFC;
+    color: #2C2C2C;
+  }
+
+  .card {
+    width: 960px;
+    margin: 0 auto;
+    background: #FFFFFF;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0F4C5C 0%, #1B7A8A 50%, #2AA198 100%);
+    padding: 52px 56px 44px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .header-top { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .badge { background: rgba(255,255,255,0.15); color: #A7F3D0; font-size: 20px; font-weight: 500; padding: 10px 24px; border-radius: 24px; }
+  .badge-date { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); font-size: 19px; padding: 10px 24px; border-radius: 24px; }
+  .header h1 { color: #FFFFFF; font-size: 58px; font-weight: 900; margin-bottom: 10px; }
+  .header-sub { color: #A7F3D0; font-size: 26px; font-weight: 300; }
+  .header-trigger { color: rgba(255,255,255,0.7); font-size: 22px; margin-top: 16px; line-height: 1.5; }
+
+  /* SECTIONS */
+  .section { padding: 40px 56px; border-bottom: 1px solid #F1F5F9; }
+  .section-label { font-size: 28px; font-weight: 700; color: #0F4C5C; margin-bottom: 24px; }
+
+  /* CORE DISTINCTION */
+  .core-box {
+    background: #F0FDFA;
+    border-radius: 16px;
+    padding: 32px 36px;
+    border-left: 6px solid #0F4C5C;
+  }
+  .core-title { font-size: 26px; font-weight: 700; color: #0F4C5C; margin-bottom: 16px; }
+  .core-text { font-size: 22px; line-height: 1.7; color: #334155; }
+  .core-text strong { color: #0F4C5C; }
+  .core-formula {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 24px 0;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .core-error { color: #EF4444; background: #FEF2F2; padding: 8px 20px; border-radius: 12px; }
+  .core-arrow { color: #94A3B8; font-size: 28px; }
+  .core-defect { color: #991B1B; background: #FEF2F2; padding: 8px 20px; border-radius: 12px; }
+  .core-intercept { color: #059669; background: #ECFDF5; padding: 8px 20px; border-radius: 12px; font-size: 22px; }
+
+  /* LEVEL GRADIENT - THE KEY SECTION */
+  .gradient-intro {
+    background: #FFFBEB;
+    border: 2px solid #F59E0B;
+    border-radius: 16px;
+    padding: 28px 36px;
+    margin-bottom: 32px;
+  }
+  .gradient-intro-title { font-size: 24px; font-weight: 700; color: #92400E; margin-bottom: 12px; }
+  .gradient-intro-text { font-size: 21px; line-height: 1.7; color: #78350F; }
+
+  .level-card {
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .level-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .level-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 900;
+    color: #FFFFFF;
+    flex-shrink: 0;
+  }
+  .level-title { font-size: 26px; font-weight: 700; }
+  .level-attention {
+    font-size: 18px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .level-desc { font-size: 21px; line-height: 1.6; color: #475569; margin-bottom: 16px; }
+  .level-example {
+    background: rgba(255,255,255,0.7);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-top: 12px;
+  }
+  .level-example-title { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+  .level-example-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+  .level-example-icon { flex-shrink: 0; font-size: 20px; }
+
+  /* Level colors */
+  .level-3 { background: #FEF2F2; border: 2px solid #FECACA; }
+  .level-3 .level-num { background: #EF4444; }
+  .level-3 .level-title { color: #991B1B; }
+  .level-3 .level-attention { background: #FEE2E2; color: #991B1B; }
+  .level-3 .level-example-title { color: #991B1B; }
+
+  .level-2 { background: #FFFBEB; border: 2px solid #FDE68A; }
+  .level-2 .level-num { background: #F59E0B; }
+  .level-2 .level-title { color: #92400E; }
+  .level-2 .level-attention { background: #FEF3C7; color: #92400E; }
+  .level-2 .level-example-title { color: #92400E; }
+
+  .level-1 { background: #ECFDF5; border: 2px solid #A7F3D0; }
+  .level-1 .level-num { background: #059669; }
+  .level-1 .level-title { color: #065F46; }
+  .level-1 .level-attention { background: #D1FAE5; color: #065F46; }
+  .level-1 .level-example-title { color: #065F46; }
+
+  /* Upgrade arrow between levels */
+  .upgrade-arrow {
+    text-align: center;
+    padding: 8px 0;
+    font-size: 22px;
+    color: #64748B;
+  }
+  .upgrade-arrow span {
+    background: #F1F5F9;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  /* PRACTICAL WISDOM */
+  .wisdom-box {
+    background: #F0F9FF;
+    border: 2px solid #7DD3FC;
+    border-radius: 16px;
+    padding: 28px 36px;
+  }
+  .wisdom-title { font-size: 24px; font-weight: 700; color: #0C4A6E; margin-bottom: 16px; }
+  .wisdom-text { font-size: 21px; line-height: 1.7; color: #0C4A6E; }
+  .wisdom-text strong { color: #0369A1; }
+
+  /* 10 PRINCIPLES */
+  .principles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .principle-card {
+    background: #F8FAFC;
+    border-radius: 12px;
+    padding: 18px 22px;
+    border-left: 4px solid #2AA198;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .principle-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .principle-name { font-size: 22px; font-weight: 700; color: #0F4C5C; margin-bottom: 6px; }
+  .principle-factory { font-size: 18px; color: #059669; margin-bottom: 4px; }
+  .principle-life { font-size: 18px; color: #64748B; }
+
+  /* 4 PRINCIPLES */
+  .four-p {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+  }
+  .four-p-item {
+    flex: 1;
+    text-align: center;
+    background: #F0FDFA;
+    border-radius: 16px;
+    padding: 24px 16px;
+    border: 2px solid #A7F3D0;
+  }
+  .four-p-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #0F4C5C;
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+  .four-p-text { font-size: 22px; font-weight: 700; color: #0F4C5C; line-height: 1.4; }
+
+  /* CANVAS DEMO */
+  .canvas-section {
+    padding: 40px 56px;
+    background: #F8FAFC;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  .canvas-wrapper {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .canvas-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .canvas-btn {
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .canvas-btn-off {
+    background: #FEE2E2;
+    color: #991B1B;
+    border-color: #FECACA;
+  }
+  .canvas-btn-off.active {
+    background: #EF4444;
+    color: #FFFFFF;
+  }
+  .canvas-btn-l1 {
+    background: #D1FAE5;
+    color: #065F46;
+    border-color: #A7F3D0;
+  }
+  .canvas-btn-l1.active {
+    background: #059669;
+    color: #FFFFFF;
+  }
+  .canvas-btn-l2 {
+    background: #FEF3C7;
+    color: #92400E;
+    border-color: #FDE68A;
+  }
+  .canvas-btn-l2.active {
+    background: #F59E0B;
+    color: #FFFFFF;
+  }
+  .canvas-btn-l3 {
+    background: #E0E7FF;
+    color: #3730A3;
+    border-color: #C7D2FE;
+  }
+  .canvas-btn-l3.active {
+    background: #4F46E5;
+    color: #FFFFFF;
+  }
+  .canvas-hint {
+    font-size: 20px;
+    color: #64748B;
+    margin-left: auto;
+  }
+  canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 12px;
+    cursor: grab;
+  }
+  canvas:active { cursor: grabbing; }
+  .canvas-result {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 22px;
+    font-weight: 700;
+    min-height: 32px;
+  }
+
+  /* INSIGHT */
+  .insight-box {
+    background: #F0FDFA;
+    border-radius: 16px;
+    padding: 32px 36px;
+    border-left: 6px solid #059669;
+  }
+  .insight-title { font-size: 26px; font-weight: 700; color: #065F46; margin-bottom: 16px; }
+  .insight-text { font-size: 22px; line-height: 1.7; color: #334155; }
+  .insight-text strong { color: #065F46; }
+  .insight-highlight {
+    margin-top: 20px;
+    background: #ECFDF5;
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #065F46;
+    text-align: center;
+  }
+
+  /* FOOTER */
+  .footer {
+    padding: 24px 56px;
+    background: #F8FAFC;
+    text-align: center;
+    font-size: 18px;
+    color: #94A3B8;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <span class="badge">🔧 精益工具卡</span>
+      <span class="badge-date">2026年5月13日</span>
+    </div>
+    <h1>Poka-yoke 🛡️</h1>
+    <div class="header-sub">防错法 · 让错误不可能变成缺陷</div>
+  </div>
+
+  <!-- FIRST SCREEN INTERACTIVE DEMO -->
+  <div class="section" style="background: #F0FDF4; padding: 36px 56px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+      <span style="font-size: 28px;">🎮</span>
+      <span style="font-size: 24px; font-weight: 700; color: #065F46;">先动手试试——把零件拖到对应的槽里</span>
+    </div>
+    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+      <button class="canvas-btn canvas-btn-off" onclick="setDemoMode('off')" id="demo-btn-off">❌ 无防错</button>
+      <button class="canvas-btn canvas-btn-l3" onclick="setDemoMode('warn')" id="demo-btn-warn">⚠️ 警告型</button>
+      <button class="canvas-btn canvas-btn-l2" onclick="setDemoMode('control')" id="demo-btn-control">🟡 控制型</button>
+      <button class="canvas-btn canvas-btn-l1" onclick="setDemoMode('eliminate')" id="demo-btn-eliminate">✅ 消除型</button>
+      <button style="padding: 12px 24px; border-radius: 12px; font-size: 18px; font-weight: 500; cursor: pointer; border: 2px solid #CBD5E1; background: #F8FAFC; color: #64748B; font-family: 'Noto Sans SC', sans-serif; margin-left: auto;" onclick="resetDemo()">🔄 重置</button>
+    </div>
+    <canvas id="demoCanvas" width="848" height="260" style="width: 848px; height: 260px; border-radius: 16px; background: #FFFFFF; border: 2px solid #E2E8F0; cursor: grab;"></canvas>
+    <div style="margin-top: 12px; font-size: 19px; color: #64748B; text-align: center;" id="demo-hint">
+      👆 点击按钮切换模式，然后拖拽零件体验四种防错的区别
+    </div>
+  </div>
+
+  <!-- CORE DISTINCTION -->
+  <div class="section">
+    <div class="section-label">💡 最核心的一个区分</div>
+    <div class="core-box">
+      <div class="core-title">错误 ≠ 缺陷</div>
+      <div class="core-text">
+        <strong>错误（Error）</strong>：人犯的疏忽——忘记、搞混、遗漏。这是人性的，<strong>不可避免</strong>。<br>
+        <strong>缺陷（Defect）</strong>：错误传到了产品/服务上——错件、漏装、参数偏。这是流程的失败，<strong>可以避免</strong>。
+      </div>
+      <div class="core-formula">
+        <span class="core-error">错误</span>
+        <span class="core-arrow">→</span>
+        <span class="core-intercept">🛡️ 防错拦截</span>
+        <span class="core-arrow">→</span>
+        <span class="core-defect">缺陷 ✗</span>
+      </div>
+      <div class="core-text">
+        防错法不是消灭错误（不可能），是<strong>在错误变成缺陷之间插入拦截</strong>。<br><br>
+        新乡重夫（Shigeo Shingo）的激进主张：<strong>检验本身就是浪费。</strong>如果你需要检验，说明流程还不够好。<br>
+        终极目标：<strong>零检验质量（Zero QC）</strong>——不需要检验，因为防错机制已确保错误不可能变成缺陷。
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL GRADIENT - THE KEY SECTION -->
+  <div class="section">
+    <div class="section-label">⚠️ 防错有等级——同样是防错，差别巨大</div>
+
+    <div class="gradient-intro">
+      <div class="gradient-intro-title">大多数人对防错的理解停留在"贴标识"</div>
+      <div class="gradient-intro-text">
+        画个形迹、贴个警示、标个颜色——这些确实是防错，但<strong>等级最低</strong>。<br>
+        因为它们<strong>全部依赖人的注意力</strong>。人一疲劳、一走神、一新手上岗，防错就失效。<br><br>
+        <strong>防错等级的核心判据：越少依赖人的注意力，等级越高。</strong><br>
+        但也不必一味追求最高等级——<strong>成本、可行性、风险程度</strong>决定该用哪一级。
+      </div>
+    </div>
+
+    <!-- Level 3 - Warning -->
+    <div class="level-card level-3">
+      <div class="level-header">
+        <div class="level-num">3</div>
+        <div class="level-title">警告型防错</div>
+        <div class="level-attention">⚠️ 高度依赖注意力</div>
+      </div>
+      <div class="level-desc">
+        错误已经发生或即将发生，通过<strong>声光信号提醒人注意</strong>。<br>
+        人必须看到/听到警告并做出正确反应，否则缺陷照样产生。
+      </div>
+      <div class="level-example">
+        <div class="level-example-title">📌 同一个场景的警告型防错</div>
+        <div class="level-example-row"><span class="level-example-icon">🔧</span>工具归位：形迹板上<strong>画了工具轮廓</strong>，但拿错或忘还，只有人自己注意到</div>
+        <div class="level-example-row"><span class="level-example-icon">🏭</span>零件装配：作业指导书上<strong>标红提醒</strong>"注意方向"，但员工可能没看</div>
+        <div class="level-example-row"><span class="level-example-icon">🏭</span>安全操作：安全带<strong>蜂鸣器报警</strong>，但人可以忽略报警继续操作</div>
+        <div class="level-example-row"><span class="level-example-icon">🏠</span>日常生活：油箱盖没拧紧，仪表盘<strong>亮灯提醒</strong>，但人可能没注意到</div>
+      </div>
+    </div>
+
+    <div class="upgrade-arrow"><span>↑ 升级：让人"想错也错不了" ↑</span></div>
+
+    <!-- Level 2 - Control -->
+    <div class="level-card level-2">
+      <div class="level-header">
+        <div class="level-num">2</div>
+        <div class="level-title">控制型防错</div>
+        <div class="level-attention">🟡 部分依赖注意力</div>
+      </div>
+      <div class="level-desc">
+        错误发生时，<strong>流程自动停住或锁死</strong>，人无法继续。<br>
+        不需要人主动反应，系统自动拦截——但人仍需排除错误后才能继续。
+      </div>
+      <div class="level-example">
+        <div class="level-example-title">📌 同一个场景的控制型防错</div>
+        <div class="level-example-row"><span class="level-example-icon">🔧</span>工具归位：形迹板加<strong>传感器</strong>，工具未归位时<strong>设备无法启动</strong></div>
+        <div class="level-example-row"><span class="level-example-icon">🏭</span>零件装配：零件<strong>形状不对称</strong>（定位销/缺角），反了<strong>放不进去</strong></div>
+        <div class="level-example-row"><span class="level-example-icon">🏭</span>安全操作：双手<strong>必须同时按两个按钮</strong>，单手操作机器不启动</div>
+        <div class="level-example-row"><span class="level-example-icon">🏠</span>日常生活：微波炉<strong>开门自动断电</strong>，门开着就无法加热</div>
+      </div>
+    </div>
+
+    <div class="upgrade-arrow"><span>↑ 升级：让错误"根本不可能发生" ↑</span></div>
+
+    <!-- Level 1 - Elimination -->
+    <div class="level-card level-1">
+      <div class="level-header">
+        <div class="level-num">1</div>
+        <div class="level-title">消除型防错</div>
+        <div class="level-attention">✅ 零注意力依赖</div>
+      </div>
+      <div class="level-desc">
+        <strong>从源头消除犯错的可能性</strong>——错误的条件根本不存在，所以错误不可能发生。<br>
+        完全不依赖人的注意力、判断力、记忆力。
+      </div>
+      <div class="level-example">
+        <div class="level-example-title">📌 同一个场景的消除型防错</div>
+        <div class="level-example-row"><span class="level-example-icon">🔧</span>工具归位：<strong>取消工具</strong>——把螺丝改成卡扣，根本不需要螺丝刀</div>
+        <div class="level-example-row"><span class="level-example-icon">🏭</span>零件装配：<strong>取消方向性</strong>——零件设计成<strong>任意方向都能安装</strong>，不存在"装反"</div>
+        <div class="level-example-row"><span class="level-example-icon">🏭</span>安全操作：<strong>取消人操作</strong>——自动化/机器人替代，人根本不接触危险</div>
+        <div class="level-example-row"><span class="level-example-icon">🏠</span>日常生活：USB-C接口<strong>正反都能插</strong>，不存在"插反"这个错误</div>
+      </div>
+    </div>
+
+    <!-- Practical wisdom -->
+    <div class="wisdom-box" style="margin-top: 28px;">
+      <div class="wisdom-title">🎯 实战智慧：不是越高越好</div>
+      <div class="wisdom-text">
+        <strong>消除型最好，但不是每个场景都需要消除型。</strong><br><br>
+        • 高风险（安全/合规）→ 必须追求消除型或控制型<br>
+        • 中风险（质量/效率）→ 控制型通常够用<br>
+        • 低风险（偶发/影响小）→ 警告型即可，投入产出比更高<br><br>
+        <strong>关键不是追求最高等级，而是——</strong><br>
+        ① <strong>知道你现在的防错是哪个等级</strong>（大多数人不清楚）<br>
+        ② <strong>知道还能不能升级</strong>（大多数人不思考）<br>
+        ③ <strong>根据风险决定要不要升级</strong>（大多数人不评估）<br><br>
+        从警告型升级到控制型，往往只需要<strong>加一个传感器、改一个形状、加一个互锁</strong>——成本不高，效果天壤之别。
+      </div>
+    </div>
+  </div>
+
+  <!-- CONVEYOR SIMULATION -->
+  <div class="canvas-section">
+    <div class="section-label">🏭 互动体验：流水线防错模拟</div>
+    <div style="padding: 0 20px 8px; font-size: 20px; color: #475569; line-height: 1.6;">
+      零件在传送带上流动，<strong>红色零件是缺陷品</strong>。点击传送带上的位置放置防错装置，拦截缺陷品！
+    </div>
+    <div class="canvas-wrapper">
+      <div class="canvas-controls">
+        <button class="canvas-btn" style="background: #FEE2E2; color: #991B1B; border-color: #FECACA;" onclick="placeCheckpoint('warn')" id="cp-btn-warn">⚠️ 放警告装置</button>
+        <button class="canvas-btn" style="background: #FEF3C7; color: #92400E; border-color: #FDE68A;" onclick="placeCheckpoint('control')" id="cp-btn-control">🟡 放控制装置</button>
+        <button class="canvas-btn" style="background: #D1FAE5; color: #065F46; border-color: #A7F3D0;" onclick="placeCheckpoint('eliminate')" id="cp-btn-eliminate">✅ 放消除装置</button>
+        <button style="padding: 12px 24px; border-radius: 12px; font-size: 18px; font-weight: 500; cursor: pointer; border: 2px solid #CBD5E1; background: #F8FAFC; color: #64748B; font-family: 'Noto Sans SC', sans-serif;" onclick="clearCheckpoints()">🗑️ 清除装置</button>
+        <span class="canvas-hint" id="conveyor-hint">点击传送带放置防错装置</span>
+      </div>
+      <canvas id="conveyorCanvas" width="860" height="320" style="width: 860px; height: 320px; border-radius: 16px; background: #FFFFFF; border: 2px solid #E2E8F0; cursor: crosshair;"></canvas>
+      <div class="canvas-result" id="conveyor-result" style="display: flex; gap: 32px; justify-content: center; font-size: 20px; padding: 12px 0;">
+        <span>✅ 通过: <strong id="conv-pass">0</strong></span>
+        <span>🛡️ 拦截: <strong id="conv-intercept">0</strong></span>
+        <span>❌ 漏出: <strong id="conv-leak">0</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10 PRINCIPLES -->
+  <div class="section">
+    <div class="section-label">📋 防错十大原理</div>
+    <div class="principles-grid">
+      <div class="principle-card"><div class="principle-name">1. 断根原理</div><div class="principle-factory">🏭 关闭总开关上锁（LOTO）</div><div class="principle-life">🏠 拔掉插头=不可能漏电</div></div>
+      <div class="principle-card"><div class="principle-name">2. 保险原理</div><div class="principle-factory">🏭 双手必须同时按两个按钮</div><div class="principle-life">🏠 微波炉开门自动断电</div></div>
+      <div class="principle-card"><div class="principle-name">3. 自动原理</div><div class="principle-factory">🏭 感应水龙头、抽水马桶</div><div class="principle-life">🏠 自动感应门</div></div>
+      <div class="principle-card"><div class="principle-name">4. 相符原理</div><div class="principle-factory">🏭 USB接口、SIM卡缺角定位</div><div class="principle-life">🏠 钥匙只能一个方向插入</div></div>
+      <div class="principle-card"><div class="principle-name">5. 隔离原理</div><div class="principle-factory">🏭 危险品专用柜、隔离带</div><div class="principle-life">🏠 药品儿童锁瓶盖</div></div>
+      <div class="principle-card"><div class="principle-name">6. 顺序原理</div><div class="principle-factory">🏭 编号步骤、斜线对齐</div><div class="principle-life">🏠 IKEA组装编号顺序</div></div>
+      <div class="principle-card"><div class="principle-name">7. 复制原理</div><div class="principle-factory">🏭 复写纸一式三联</div><div class="principle-life">🏠 银行存根联</div></div>
+      <div class="principle-card"><div class="principle-name">8. 层别原理</div><div class="principle-factory">🏭 颜色区分管路、线条粗细</div><div class="principle-life">🏠 垃圾分类颜色桶</div></div>
+      <div class="principle-card"><div class="principle-name">9. 警告原理</div><div class="principle-factory">🏭 安全带报警、按错键提示</div><div class="principle-life">🏠 汽车倒车雷达</div></div>
+      <div class="principle-card"><div class="principle-name">10. 缓和原理</div><div class="principle-factory">🏭 缓冲垫、安全气囊</div><div class="principle-life">🏠 鸡蛋隔层、手机壳</div></div>
+    </div>
+  </div>
+
+  <!-- 4 PRINCIPLES -->
+  <div class="section">
+    <div class="section-label">✨ 实施四不原则</div>
+    <div class="four-p">
+      <div class="four-p-item"><div class="four-p-num">1</div><div class="four-p-text">使作业<br>不困难</div></div>
+      <div class="four-p-item"><div class="four-p-num">2</div><div class="four-p-text">使作业<br>不要技能</div></div>
+      <div class="four-p-item"><div class="four-p-num">3</div><div class="four-p-text">使作业<br>不依赖感官</div></div>
+      <div class="four-p-item"><div class="four-p-num">4</div><div class="four-p-text">使作业<br>不会有危险</div></div>
+    </div>
+  </div>
+
+  <!-- INSIGHT -->
+  <div class="section">
+    <div class="section-label">🧠 给管理者的洞察</div>
+    <div class="insight-box">
+      <div class="insight-title">"员工又犯了这个错"——该检讨的不是员工</div>
+      <div class="insight-text">
+        当同一个错误反复出现，问题不在人，在流程——<br>
+        是你<strong>允许</strong>了这个错误有变成缺陷的通道。<br><br>
+        新乡重夫说：<strong>"错误是人性的，防错是工程的责任。"</strong><br><br>
+        更关键的是——<strong>你现在的防错是哪个等级？</strong><br>
+        如果只是贴了标识、画了形迹，那是警告型，<strong>员工一走神就失效</strong>。<br>
+        加一个传感器、改一个形状，就能升级到控制型——<strong>员工想错也错不了</strong>。<br><br>
+        防错不需要大量资源投入或很高技术水平，<br>
+        <strong>任何作业过程都可以通过预先设计加入防错来防止人为错误。</strong>
+      </div>
+      <div class="insight-highlight">
+        最好的防错，是让正确的事变成最容易的事
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">精益工具卡 · 场景驱动 · 缺失模式优先</div>
+
+</div>
+
+<script>
+
+// ========== CONVEYOR BELT SIMULATION ==========
+const convCanvas = document.getElementById('conveyorCanvas');
+const cctx = convCanvas.getContext('2d');
+let convParts = [], checkpoints = [], placingType = null;
+let convPass = 0, convIntercept = 0, convLeak = 0, convTick = 0, convMessages = [];
+const BELT_Y = 130, BELT_H = 60, BELT_LEFT = 60, BELT_RIGHT = 800;
+
+function spawnPart() {
+  const isDefect = Math.random() < 0.35;
+  convParts.push({ x: BELT_LEFT - 30, y: BELT_Y + 10 + Math.random() * (BELT_H - 30), w: 36, h: 36, defect: isDefect, speed: 1.2 + Math.random() * 0.6, alive: true, warned: false, color: isDefect ? '#EF4444' : '#3B82F6', label: isDefect ? '✗' : '✓' });
+}
+function placeCheckpoint(type) {
+  placingType = type;
+  document.getElementById('conveyor-hint').textContent = type === 'warn' ? '⚠️ 点击传送带放置警告装置' : type === 'control' ? '🟡 点击传送带放置控制装置' : '✅ 点击传送带放置消除装置';
+  ['warn','control','eliminate'].forEach(t => { document.getElementById('cp-btn-' + t).style.outline = t === type ? '3px solid #1E293B' : 'none'; });
+}
+convCanvas.addEventListener('click', e => {
+  if (!placingType) return;
+  const rect = convCanvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (convCanvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (convCanvas.height / rect.height);
+  if (mx > BELT_LEFT + 40 && mx < BELT_RIGHT - 40 && my > BELT_Y - 20 && my < BELT_Y + BELT_H + 20) {
+    checkpoints.push({ x: mx, type: placingType, flash: 0 });
+    placingType = null;
+    document.getElementById('conveyor-hint').textContent = '防错装置已放置！观察零件如何通过';
+    ['warn','control','eliminate'].forEach(t => { document.getElementById('cp-btn-' + t).style.outline = 'none'; });
+  }
+});
+function clearCheckpoints() { checkpoints = []; convParts = []; convPass = 0; convIntercept = 0; convLeak = 0; convMessages = []; document.getElementById('conv-pass').textContent = '0'; document.getElementById('conv-intercept').textContent = '0'; document.getElementById('conv-leak').textContent = '0'; }
+
+function drawConveyor() {
+  cctx.clearRect(0, 0, convCanvas.width, convCanvas.height);
+  cctx.fillStyle = '#64748B'; cctx.font = '16px "Noto Sans SC", sans-serif'; cctx.textAlign = 'left'; cctx.fillText('← 入口', BELT_LEFT - 10, BELT_Y - 30);
+  cctx.textAlign = 'right'; cctx.fillText('出口 →', BELT_RIGHT + 10, BELT_Y - 30);
+  cctx.fillStyle = '#E2E8F0'; cctx.fillRect(BELT_LEFT, BELT_Y, BELT_RIGHT - BELT_LEFT, BELT_H);
+  cctx.strokeStyle = '#CBD5E1'; cctx.lineWidth = 1;
+  for (let i = 0; i < 30; i++) { const sx = BELT_LEFT + ((i * 30 + convTick * 1.2) % (BELT_RIGHT - BELT_LEFT)); cctx.beginPath(); cctx.moveTo(sx, BELT_Y); cctx.lineTo(sx, BELT_Y + BELT_H); cctx.stroke(); }
+  cctx.strokeStyle = '#94A3B8'; cctx.lineWidth = 3; cctx.strokeRect(BELT_LEFT, BELT_Y, BELT_RIGHT - BELT_LEFT, BELT_H);
+  checkpoints.forEach(cp => {
+    const colors = { warn: '#4F46E5', control: '#F59E0B', eliminate: '#059669' };
+    const labels = { warn: '⚠️ 警告', control: '🟡 控制', eliminate: '✅ 消除' };
+    cctx.fillStyle = colors[cp.type]; cctx.fillRect(cp.x - 4, BELT_Y - 35, 8, BELT_H + 50);
+    cctx.font = 'bold 14px "Noto Sans SC", sans-serif'; cctx.textAlign = 'center'; cctx.fillText(labels[cp.type], cp.x, BELT_Y - 42);
+    if (cp.flash > 0) { cctx.fillStyle = 'rgba(239, 68, 68, ' + (cp.flash * 0.4) + ')'; cctx.fillRect(cp.x - 20, BELT_Y, 40, BELT_H); cp.flash -= 0.03; }
+  });
+  convParts.forEach(p => { if (!p.alive) return; cctx.fillStyle = p.color; cctx.beginPath(); cctx.arc(p.x + p.w/2, p.y + p.h/2, p.w/2 - 2, 0, Math.PI * 2); cctx.fill(); cctx.fillStyle = '#FFFFFF'; cctx.font = 'bold 16px sans-serif'; cctx.textAlign = 'center'; cctx.fillText(p.label, p.x + p.w/2, p.y + p.h/2 + 6); });
+  const now = Date.now(); convMessages = convMessages.filter(m => now - m.time < 2000);
+  convMessages.forEach(m => { const alpha = Math.max(0, 1 - (now - m.time) / 2000); cctx.fillStyle = m.color.replace(')', ', ' + alpha + ')').replace('rgb', 'rgba'); cctx.font = 'bold 18px "Noto Sans SC", sans-serif'; cctx.textAlign = 'center'; cctx.fillText(m.text, m.x, m.y - (now - m.time) / 60); });
+  cctx.fillStyle = '#3B82F6'; cctx.beginPath(); cctx.arc(70, 280, 10, 0, Math.PI * 2); cctx.fill();
+  cctx.fillStyle = '#475569'; cctx.font = '16px "Noto Sans SC", sans-serif'; cctx.textAlign = 'left'; cctx.fillText('合格品', 88, 285);
+  cctx.fillStyle = '#EF4444'; cctx.beginPath(); cctx.arc(180, 280, 10, 0, Math.PI * 2); cctx.fill();
+  cctx.fillStyle = '#475569'; cctx.fillText('缺陷品', 198, 285);
+  cctx.fillStyle = '#94A3B8'; cctx.font = '14px "Noto Sans SC", sans-serif'; cctx.fillText('提示：先选装置类型，再点传送带放置', 340, 285);
+}
+function updateConveyor() {
+  convTick++; if (convTick % 50 === 0) spawnPart();
+  convParts.forEach(p => { if (!p.alive) return; p.x += p.speed;
+    checkpoints.forEach(cp => { if (p.alive && Math.abs(p.x + p.w/2 - cp.x) < p.speed + 2 && p.defect) {
+      if (cp.type === 'eliminate') { p.alive = false; convIntercept++; convMessages.push({ text: '✅ 消除！缺陷品不存在', x: cp.x, y: BELT_Y - 10, color: 'rgb(5, 150, 105)', time: Date.now() }); }
+      else if (cp.type === 'control') { p.alive = false; convIntercept++; cp.flash = 1; convMessages.push({ text: '🛡️ 拦截！缺陷品被拦下', x: cp.x, y: BELT_Y - 10, color: 'rgb(245, 158, 11)', time: Date.now() }); }
+      else if (cp.type === 'warn' && !p.warned) { p.warned = true; cp.flash = 1; convMessages.push({ text: '⚠️ 警告！但缺陷品继续流动...', x: cp.x, y: BELT_Y - 10, color: 'rgb(79, 70, 229)', time: Date.now() }); }
+    } });
+    if (p.x > BELT_RIGHT + 20) { p.alive = false; if (p.defect) convLeak++; else convPass++; }
+  });
+  convParts = convParts.filter(p => p.alive);
+  document.getElementById('conv-pass').textContent = convPass; document.getElementById('conv-intercept').textContent = convIntercept; document.getElementById('conv-leak').textContent = convLeak;
+}
+function conveyorLoop() { updateConveyor(); drawConveyor(); requestAnimationFrame(conveyorLoop); }
+conveyorLoop();
+
+// ========== FIRST SCREEN DEMO CANVAS ==========
+const demoCanvas = document.getElementById('demoCanvas');
+const dctx = demoCanvas.getContext('2d');
+let demoMode = 'off', demoDragging = null, demoDragOX = 0, demoDragOY = 0, demoDefects = 0, demoIntercepts = 0, demoWarningFlash = 0, demoMessages = [];
+const demoSlots = [
+  { x: 560, y: 30, w: 80, h: 80, shape: 'circle', color: '#DBEAFE', label: '圆槽' },
+  { x: 680, y: 30, w: 80, h: 80, shape: 'triangle', color: '#FEE2E2', label: '三角槽' },
+  { x: 560, y: 150, w: 80, h: 80, shape: 'square', color: '#FEF3C7', label: '方槽' },
+  { x: 680, y: 150, w: 80, h: 80, shape: 'diamond', color: '#E0E7FF', label: '菱槽' },
+];
+const demoParts = [
+  { x: 40, y: 30, w: 70, h: 70, shape: 'circle', color: '#3B82F6', label: '圆', homeX: 40, homeY: 30, placed: false },
+  { x: 140, y: 30, w: 70, h: 70, shape: 'triangle', color: '#EF4444', label: '三角', homeX: 140, homeY: 30, placed: false },
+  { x: 240, y: 30, w: 70, h: 70, shape: 'square', color: '#F59E0B', label: '方', homeX: 240, homeY: 30, placed: false },
+  { x: 340, y: 30, w: 70, h: 70, shape: 'diamond', color: '#6366F1', label: '菱', homeX: 340, homeY: 30, placed: false },
+  { x: 40, y: 150, w: 70, h: 70, shape: 'triangle', color: '#F87171', label: '三角', homeX: 40, homeY: 150, placed: false },
+  { x: 140, y: 150, w: 70, h: 70, shape: 'circle', color: '#60A5FA', label: '圆', homeX: 140, homeY: 150, placed: false },
+  { x: 240, y: 150, w: 70, h: 70, shape: 'diamond', color: '#818CF8', label: '菱', homeX: 240, homeY: 150, placed: false },
+  { x: 340, y: 150, w: 70, h: 70, shape: 'square', color: '#FBBF24', label: '方', homeX: 340, homeY: 150, placed: false },
+];
+function drawDemoShape(x, y, w, h, shape, color, filled) {
+  dctx.fillStyle = color; dctx.strokeStyle = color; dctx.lineWidth = 3; const cx = x + w/2, cy = y + h/2;
+  if (shape === 'circle') { dctx.beginPath(); dctx.arc(cx, cy, w/2 - 4, 0, Math.PI * 2); filled ? dctx.fill() : dctx.stroke(); }
+  else if (shape === 'triangle') { dctx.beginPath(); dctx.moveTo(cx, y + 6); dctx.lineTo(x + w - 6, y + h - 6); dctx.lineTo(x + 6, y + h - 6); dctx.closePath(); filled ? dctx.fill() : dctx.stroke(); }
+  else if (shape === 'square') { filled ? dctx.fillRect(x + 6, y + 6, w - 12, h - 12) : dctx.strokeRect(x + 6, y + 6, w - 12, h - 12); }
+  else if (shape === 'diamond') { dctx.beginPath(); dctx.moveTo(cx, y + 6); dctx.lineTo(x + w - 6, cy); dctx.lineTo(cx, y + h - 6); dctx.lineTo(x + 6, cy); dctx.closePath(); filled ? dctx.fill() : dctx.stroke(); }
+}
+function drawDemo() {
+  dctx.clearRect(0, 0, demoCanvas.width, demoCanvas.height);
+  dctx.fillStyle = '#CBD5E1'; dctx.font = '36px sans-serif'; dctx.textAlign = 'center'; dctx.fillText('→', 490, 140);
+  demoSlots.forEach(s => { dctx.fillStyle = '#F8FAFC'; dctx.fillRect(s.x - 4, s.y - 4, s.w + 8, s.h + 8); dctx.strokeStyle = '#CBD5E1'; dctx.lineWidth = 2; dctx.setLineDash([6, 4]); dctx.strokeRect(s.x - 4, s.y - 4, s.w + 8, s.h + 8); dctx.setLineDash([]); drawDemoShape(s.x, s.y, s.w, s.h, s.shape, s.color, false); dctx.fillStyle = '#94A3B8'; dctx.font = '15px "Noto Sans SC", sans-serif'; dctx.textAlign = 'center'; dctx.fillText(s.label, s.x + s.w/2, s.y + s.h + 18); });
+  demoParts.forEach(p => { if (p.placed) return; if (demoMode === 'eliminate') { const ms = demoSlots.find(s => s.shape === p.shape); if (!ms) return; } dctx.fillStyle = 'rgba(0,0,0,0.08)'; dctx.fillRect(p.x + 3, p.y + 3, p.w, p.h); drawDemoShape(p.x, p.y, p.w, p.h, p.shape, p.color, true); dctx.fillStyle = '#FFFFFF'; dctx.font = 'bold 14px "Noto Sans SC", sans-serif'; dctx.textAlign = 'center'; dctx.fillText(p.label, p.x + p.w/2, p.y + p.h/2 + 5); });
+  if (demoMode === 'warn' && demoWarningFlash > 0) { dctx.fillStyle = 'rgba(239, 68, 68, ' + (demoWarningFlash * 0.3) + ')'; dctx.fillRect(0, 0, demoCanvas.width, demoCanvas.height); demoWarningFlash -= 0.02; }
+  const now = Date.now(); demoMessages = demoMessages.filter(m => now - m.time < 2000);
+  demoMessages.forEach(m => { const alpha = Math.max(0, 1 - (now - m.time) / 2000); dctx.fillStyle = m.color.replace(')', ', ' + alpha + ')').replace('rgb', 'rgba'); dctx.font = 'bold 20px "Noto Sans SC", sans-serif'; dctx.textAlign = 'center'; dctx.fillText(m.text, m.x, m.y - (now - m.time) / 50); });
+  dctx.fillStyle = '#334155'; dctx.font = '18px "Noto Sans SC", sans-serif'; dctx.textAlign = 'left'; dctx.fillText('缺陷: ' + demoDefects + '   拦截: ' + demoIntercepts, 20, demoCanvas.height - 12);
+  requestAnimationFrame(drawDemo);
+}
+function setDemoMode(m) { demoMode = m; const btnMap = { off: '#demo-btn-off', warn: '#demo-btn-warn', control: '#demo-btn-control', eliminate: '#demo-btn-eliminate' }; Object.values(btnMap).forEach(sel => document.querySelector(sel).classList.remove('active')); document.querySelector(btnMap[m]).classList.add('active'); const hints = { off: '任何零件都能放入任何槽 → 缺陷产生', warn: '形状不匹配时闪红警告 → 但你可以忽略', control: '形状不匹配时弹回 → 你放不进去', eliminate: '不匹配的零件已消失 → 想错都错不了' }; document.getElementById('demo-hint').textContent = hints[m]; }
+function resetDemo() { demoParts.forEach(p => { p.placed = false; p.x = p.homeX; p.y = p.homeY; }); demoDefects = 0; demoIntercepts = 0; demoMessages = []; }
+demoCanvas.addEventListener('mousedown', e => { const rect = demoCanvas.getBoundingClientRect(); const mx = (e.clientX - rect.left) * (demoCanvas.width / rect.width); const my = (e.clientY - rect.top) * (demoCanvas.height / rect.height); for (let i = demoParts.length - 1; i >= 0; i--) { const p = demoParts[i]; if (p.placed) continue; if (demoMode === 'eliminate') { const ms = demoSlots.find(s => s.shape === p.shape); if (!ms) continue; } if (mx > p.x && mx < p.x + p.w && my > p.y && my < p.y + p.h) { demoDragging = p; demoDragOX = mx - p.x; demoDragOY = my - p.y; break; } } });
+demoCanvas.addEventListener('mousemove', e => { if (!demoDragging) return; const rect = demoCanvas.getBoundingClientRect(); const mx = (e.clientX - rect.left) * (demoCanvas.width / rect.width); const my = (e.clientY - rect.top) * (demoCanvas.height / rect.height); demoDragging.x = mx - demoDragOX; demoDragging.y = my - demoDragOY; });
+demoCanvas.addEventListener('mouseup', e => { if (!demoDragging) return; const p = demoDragging; demoDragging = null; let droppedOnSlot = null; for (const s of demoSlots) { if (p.x + p.w/2 > s.x && p.x + p.w/2 < s.x + s.w && p.y + p.h/2 > s.y && p.y + p.h/2 < s.y + s.h) { droppedOnSlot = s; break; } } if (droppedOnSlot) { const match = p.shape === droppedOnSlot.shape; if (demoMode === 'eliminate') { if (match) { p.placed = true; p.x = droppedOnSlot.x + 5; p.y = droppedOnSlot.y + 5; demoIntercepts++; demoMessages.push({ text: '✅ 完美匹配！', x: droppedOnSlot.x + droppedOnSlot.w/2, y: droppedOnSlot.y, color: 'rgb(5, 150, 105)', time: Date.now() }); } } else if (demoMode === 'control') { if (match) { p.placed = true; p.x = droppedOnSlot.x + 5; p.y = droppedOnSlot.y + 5; demoIntercepts++; demoMessages.push({ text: '✅ 匹配放入！', x: droppedOnSlot.x + droppedOnSlot.w/2, y: droppedOnSlot.y, color: 'rgb(5, 150, 105)', time: Date.now() }); } else { p.x = p.homeX; p.y = p.homeY; demoIntercepts++; demoMessages.push({ text: '🛡️ 弹回！', x: droppedOnSlot.x + droppedOnSlot.w/2, y: droppedOnSlot.y, color: 'rgb(245, 158, 11)', time: Date.now() }); } } else if (demoMode === 'warn') { p.placed = true; p.x = droppedOnSlot.x + 5; p.y = droppedOnSlot.y + 5; if (match) { demoIntercepts++; demoMessages.push({ text: '✅ 匹配放入！', x: droppedOnSlot.x + droppedOnSlot.w/2, y: droppedOnSlot.y, color: 'rgb(5, 150, 105)', time: Date.now() }); } else { demoWarningFlash = 1; demoDefects++; demoMessages.push({ text: '⚠️ 警告！但已放入...', x: droppedOnSlot.x + droppedOnSlot.w/2, y: droppedOnSlot.y, color: 'rgb(239, 68, 68)', time: Date.now() }); } } else { p.placed = true; p.x = droppedOnSlot.x + 5; p.y = droppedOnSlot.y + 5; if (match) { demoIntercepts++; demoMessages.push({ text: '✅ 碰巧对了', x: droppedOnSlot.x + droppedOnSlot.w/2, y: droppedOnSlot.y, color: 'rgb(5, 150, 105)', time: Date.now() }); } else { demoDefects++; demoMessages.push({ text: '❌ 缺陷产生！', x: droppedOnSlot.x + droppedOnSlot.w/2, y: droppedOnSlot.y, color: 'rgb(239, 68, 68)', time: Date.now() }); } } } else { p.x = p.homeX; p.y = p.homeY; } });
+demoCanvas.addEventListener('touchstart', e => { e.preventDefault(); const touch = e.touches[0]; const rect = demoCanvas.getBoundingClientRect(); const mx = (touch.clientX - rect.left) * (demoCanvas.width / rect.width); const my = (touch.clientY - rect.top) * (demoCanvas.height / rect.height); for (let i = demoParts.length - 1; i >= 0; i--) { const p = demoParts[i]; if (p.placed) continue; if (demoMode === 'eliminate') { const ms = demoSlots.find(s => s.shape === p.shape); if (!ms) continue; } if (mx > p.x && mx < p.x + p.w && my > p.y && my < p.y + p.h) { demoDragging = p; demoDragOX = mx - p.x; demoDragOY = my - p.y; break; } } }, { passive: false });
+demoCanvas.addEventListener('touchmove', e => { e.preventDefault(); if (!demoDragging) return; const touch = e.touches[0]; const rect = demoCanvas.getBoundingClientRect(); const mx = (touch.clientX - rect.left) * (demoCanvas.width / rect.width); const my = (touch.clientY - rect.top) * (demoCanvas.height / rect.height); demoDragging.x = mx - demoDragOX; demoDragging.y = my - demoDragOY; }, { passive: false });
+demoCanvas.addEventListener('touchend', e => { e.preventDefault(); demoCanvas.dispatchEvent(new MouseEvent('mouseup')); }, { passive: false });
+setDemoMode('off');
+drawDemo();
+</script>
+
+</body>
+</html>
